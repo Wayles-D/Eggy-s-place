@@ -2,9 +2,10 @@ import express from "express";
 import { connect } from "./config/db.js";
 import dotenv from "dotenv";
 import productRoute from "./routes/productRoute.js";
+import cors from "cors"
 
 const app = express();
-
+app.use(cors())
 const port = process.env.PORT || 5050;
 dotenv.config()
 // http://localhost:5050/api/product/create

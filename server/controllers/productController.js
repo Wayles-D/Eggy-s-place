@@ -51,6 +51,31 @@ export const product = async(req,res)=>{
         }
         res.status(200).json({success:true,message:"product not found", product});
     } catch (error) {
+    }
+} 
+
+// search controller
+export const searchProduct = async(req,res)=>{
+    try {
+        const {query} = req.query;
+        if(!query){
+            res.status(400).json({success:false,errMsg:"Search query is required"})
+            return;
+        }
+        
+        const products = await PRODUCT.find({
+            $or:[
+                {title:{$regex: query, $options:"i"}},
+                {category:{$regex: query, $options:"i"}},
+            ]
+        })
+        if(!products || products.lenghtlenght === 0){
+            res.status(404).json({status:false,errMsg:"No title or category found"})
+        }
+        
+        res.status(200).json({success:true,products})
+    } catch (error) {
         res.status(500).json(error.message)
+
     }
 }
