@@ -1,8 +1,8 @@
 import USER from "../models/userModel.js";
-import {sendForgotPasswordMail} from "../emails/emailHandlers.js"
+import {sendForgotPasswordMail} from "../emails/emailHandlers.js";
 import crypto from "crypto";
 
-// sign up
+//sign up
 
 export const signUp = async (req, res) => {
   const { email, password, firstName, lastName, cPassword } = req.body;
@@ -15,16 +15,14 @@ export const signUp = async (req, res) => {
       });
     return;
   }
-
   if (password !== cPassword) {
     res.status(400).json({ success: false, errMsg: "password do not match" });
     return;
   }
-
-  if (password.lenght < 8) {
+  if (password.length < 8) {
     res
       .status(400)
-      .json({ success: false, errMsg: "min password lenght must be 8 chrs" });
+      .json({ success: false, errMsg: "min password length must be 8 chrs" });
     return;
   }
 
@@ -40,11 +38,9 @@ export const signUp = async (req, res) => {
       .status(201)
       .json({ success: true, message: "registration successful", user });
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).send(error.message);
   }
 };
-
-// sign in
 
 export const signIn = async (req, res) => {
   const { email, password } = req.body;
@@ -55,7 +51,9 @@ export const signIn = async (req, res) => {
         .json({ success: false, errMsg: "all fields are required to sign in" });
       return;
     }
-    // finding a registered email address
+
+    //finding a registered email address
+
     const user = await USER.findOne({ email });
     if (!user) {
       res.status(404).json({ success: false, errMsg: "user not found" });
@@ -67,21 +65,19 @@ export const signIn = async (req, res) => {
     if (!isMatch) {
       res
         .status(404)
-        .json({ success: false, errMsg: "Email or password is incorrect" });
+        .json({ success: false, errMsg: "Email or Password is incorrect" });
       return;
     }
-    // generating token
+    //generating token
     const token = await user.generateToken();
     if (token) {
-      res.status(200).json({
-        succcess: true,
-        message: "signed in successfully",
-        user: {
-          role: user.role,
-          firstname: user.firstName,
-          token,
-        },
-      });
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: "signed in successfully",
+          user: { role: user.role, firstName: user.firstName, token },
+        });
       return;
     }
   } catch (error) {
@@ -90,46 +86,46 @@ export const signIn = async (req, res) => {
 };
 
 // forgot password
-export const forgotpassword = async(req,res)=>{
+export const forgotPassword = async(req,res)=>{
     const {email} = req.body;
     try {
-       if(!email){
-           res.status(400).json({success:false,errMsg:"email is required"});
-           return;
-       } 
-
-       const user = await USER.findOne({email});
-       if(!user){
-           res.status(404).json({success:false,errMsg:"email not found"});
-           return;
-       }
-
-       const resetToken = user.getResetPasswordToken();
+        if(!email){
+            res.status(400).json({success:false,errMsg:"email is required"});
+            return;
+        }
+     
+        const user = await USER.findOne({email});
+     if(!user){
+        res.status(404).json({success:false,errMsg:"email not found"});
+        return
+     }
+     
+     const resetToken = user.getResetPasswordToken();
+      await user.save();
+     res.status(201).json({success:true,message:"mail sent"});
+     const resetUrl = process.env.CLIENT_URL_RESET  + resetToken;
+     try {
+        await sendForgotPasswordMail({
+          to:user.email,
+          firstName:user.firstName,
+          resetUrl
+        })
+     } catch (error) {
+       user.resetPasswordToken = undefined;
+       user.resetPasswordExpire = undefined;
        await user.save();
-       res.status(201).json({success:true,message:"mail sent"});
-       const resetUrl = process.env.CLIENT_URL_RESET + resetToken;
-       try {
-          await sendForgotPasswordMail({
-            to:user.email,
-            firstName:user.firstName,
-            resetUrl
-          })
-       } catch (error) {
-         user.ResetPasswordToken = undefined;
-         user.ResetPasswordToken = undefined;
-         await user.save();
-         return res.status(500).json({errMsg:"Email could not be sent",error})
-       }
-       
+       return res.status(500).json({errMsg:"Email could not be sent", error})
+     }
 
     } catch (error) {
-      return res.status(500).json(error.message);
+       res.status(500).json(error.message)
     }
 }
 
-// reset password ftn
+// reset password function
+
 export const resetPassword = async (req,res)=>{
-  const resetPasswordToken = crypto.createHash("sha256").update(req.params.resetToken).digest('hex');
+  const resetPasswordToken = crypto.createHash("sha256").update(req.params, resetToken).digest("hex");
   try {
     const user = await USER.findOne({
       resetPasswordToken,
@@ -143,8 +139,8 @@ export const resetPassword = async (req,res)=>{
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
-    res.status(201).json({success:true,message:"password Reset successfully"})
+    res.status(201).json({success:true,message:"password reset sucecessful"})
   } catch (error) {
-    res.status(500).json(error.message);
+    return res.status(500).json(error.message);
   }
 }

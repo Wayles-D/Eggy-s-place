@@ -1,5 +1,5 @@
-import {createTransport} from "nodemailer";
-import {resetPasswordEmailTemplate} from "./emailTemplate.js";
+import { createTransport } from "nodemailer";
+import { resetPasswordEmailTemplate } from "./emailTemplate.js";
 
 export const sendForgotPasswordMail = (options) => {
     const transporter = createTransport({
@@ -13,7 +13,7 @@ export const sendForgotPasswordMail = (options) => {
       from: process.env.EMAIL_USERNAME,
       to: options.to,
       subject: "Reset Password",
-      html: resetPasswordEmailTemplate(options.firstName, options.resetUrl),
+      html:  resetPasswordEmailTemplate(options.firstName, options.resetUrl),
       category: "Reset Password",
     };
   
