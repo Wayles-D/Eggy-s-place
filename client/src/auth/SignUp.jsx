@@ -7,9 +7,14 @@ import visibilityOff from  "../assets/visibility_off.svg";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "../utils/ValidationSchema";
+import { toast } from "sonner";
+import LoadingRing from "../utils/Loader";
+
 const SignUp = ({switchToSignIn}) => {
-   const [isReveal, setIsReveal] = useState(false)
-   const [isReveal2, setIsReveal2] = useState(false)
+   const [isReveal, setIsReveal] = useState(false);
+   const [isReveal2, setIsReveal2] = useState(false);
+   const [isClicked, setIsClicked] = useState(false);
+
     function togglePwd(){
       setIsReveal((prev)=> !prev)
     }
@@ -20,11 +25,42 @@ const SignUp = ({switchToSignIn}) => {
     const {
       register,
       handleSubmit,
-      formState: { errors },
+      formState: { errors , isSubmitting },
+      reset
     } = useForm({
       resolver: yupResolver(signUpSchema),
     })
-    const onSubmit = (data) => console.log(data)
+    const onSubmit = async (data) => {
+      setIsClicked(true)
+      try {
+        const req = await fetch("http://localhost:5050/api/auth/sign-up",{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify(data)
+        })
+        const res = await req.json();
+        console.log(res);
+        if(!res.success){
+          toast.error(res.errMsg)
+          setIsClicked(true)
+          reset()
+        }
+        if(res.success){
+          toast.success(res.message)
+          reset()
+          switchToSignIn()
+        }
+        
+      } catch (error) {
+        console.log(error.message);
+        
+      }finally{
+        setIsClicked(false)
+      }
+    }
+    const btnText = isClicked ? <LoadingRing/> : "Sign Up";
   return (
     <>
     <main>
@@ -67,7 +103,7 @@ const SignUp = ({switchToSignIn}) => {
           </div>
 
           {/* <Link className="text-[#FBFBFB] text-[10px] font[400] underline">Forgot Password?</Link> */}
-          <MyButton text="Sign Up" className="w-full h-[40px] font-[500] text-[20px] "  />
+          <MyButton text={btnText} disabled={isSubmitting} className="w-full h-[40px] font-[500] text-[20px] "  />
         </form>
         <p className="py-4">
           <span className="text-[15px] font-[400] text-[#FBFBFB] ">Already have an account?</span> <span
