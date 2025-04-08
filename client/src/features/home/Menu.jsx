@@ -3,7 +3,7 @@ import { categoryList } from "../../db";
 import MyButton from "../../components/MyButton";
 import SearchField from "../../components/SearchField";
 import FieldSet from "./FieldSet";
-import rateIcon from "../../assets/rating-icon.svg";
+import rateIcon from '../../assets/rating-icon.svg';
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import CartContext from "../../context/CartContext";
