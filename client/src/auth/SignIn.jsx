@@ -9,11 +9,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { signInSchema } from "../utils/ValidationSchema";
 import { toast } from "sonner";
 import LoadingRing from "../utils/Loader";
+import { useAuth } from "../context/AuthContext";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
 const SignIn = ({ switchToHome, switchToSignUp }) => {
   const [isReveal, setIsReveal] = useState(false);
+  const {login} = useAuth()
   function togglePwd() {
     setIsReveal((prev) => !prev);
   }
@@ -28,7 +30,7 @@ const SignIn = ({ switchToHome, switchToSignUp }) => {
   });
   const onSubmit = async (data) => {
     try {
-      const req = await fetch(`${baseUrl}/api/auth/sign-in`, {
+      const req = await fetch(`https://eggy-s-place.onrender.com/api/auth/sign-in`, {
         method: "POST",
         headers: {
           "content-Type": "application/json",
@@ -43,8 +45,10 @@ const SignIn = ({ switchToHome, switchToSignUp }) => {
         reset();
       }
       if (res.success) {
+        
         toast.success(res.message);
         localStorage.setItem("customerToken", res.user.token);
+        login(res.user.token, res.user);
         reset();
         switchToHome();
       }

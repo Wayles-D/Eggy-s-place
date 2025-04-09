@@ -24,7 +24,7 @@ const SearchField = () => {
     setIsLoading(true);
     try {
       const request = await fetch(
-        `${baseUrl}/api/product/products/search?query=${searchTerm}`
+        `$https://eggy-s-place.onrender.com/api/product/products/search?query=${searchTerm}`
       );
       const data = await request.json();
       setSearchResult(data.products || []);

@@ -1,6 +1,7 @@
 import USER from "../models/userModel.js";
 import {sendForgotPasswordMail} from "../Emails/emailHandlers.js";
 import crypto from "crypto";
+import jwt from "jsonwebtoken"
 
 // sign up
 
@@ -74,7 +75,7 @@ export const signIn = async (req, res) => {
     const token = await user.generateToken();
     if (token) {
       res.status(200).json({
-        succcess: true,
+        success: true,
         message: "signed in successfully",
         user: {
           role: user.role,
@@ -146,5 +147,30 @@ export const resetPassword = async (req,res)=>{
     res.status(201).json({success:true,message:"password Reset successfully"})
   } catch (error) {
     res.status(500).json(error.message);
+  }
+}
+
+// is logged in function
+export const isLoggedIn = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if(!authHeader?.startsWith("Bearer")) {
+      return res.status(401).json({success: false, errMsg: "Unauthorized" });
+    }
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await USER.findById(decoded.userId).select("firstName role email");
+
+    if (!user) {
+      return res.status(404).json({ success: false, errMsg: "user not found" });
+    }
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    // console.error("isLoggedIn error:", error.message);
+    res.status(401).json({ success: false, message: "Invalid token"});
   }
 }
