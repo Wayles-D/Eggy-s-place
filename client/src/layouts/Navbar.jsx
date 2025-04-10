@@ -10,13 +10,12 @@ import SearchField from "../components/SearchField";
 import searchLogo from "../assets/search-logo.svg";
 import CartContext from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import dashboard from "../assets/dashboardIcon.png"
-import helloIcon from "../assets/helloIcon.svg"
-import inbox from "../assets/inboxx.svg"
-import orderIcon from "../assets/orderIcon.svg"
-import logOut from "../assets/logoutIcon.svg"
-import dropdown from "../assets/drop-down-img.svg"
-
+import dashboard from "../assets/dashboardIcon.png";
+import helloIcon from "../assets/helloIcon.svg";
+import inbox from "../assets/inboxx.svg";
+import orderIcon from "../assets/orderIcon.svg";
+import logOut from "../assets/logoutIcon.svg";
+import dropdown from "../assets/drop-down-img.svg";
 
 const Navbar = () => {
   const [isLoggedIn, setIsloggedIn] = useState(!false);
@@ -119,19 +118,22 @@ const Navbar = () => {
                         tabIndex={0}
                         className="dropdown-content menu bg-black rounded-box z-1 w-52 p-2 shadow-sm"
                       >
-                        <li className="text-white hover:bg-[#B67B0F]   cursor-pointer">
-                          <a>
-                            {" "}
-                            <img src={dashboard} alt="" /> DashBoard
-                          </a>
-                        </li>
+                        {user.role === "admin" && (
+                          <li className="text-white hover:bg-[#B67B0F]   cursor-pointer">
+                            <a>
+                              {" "}
+                              <img src={dashboard} alt="" /> DashBoard
+                            </a>
+                          </li>
+                        )}
+
                         <li className="text-white hover:bg-[#B67B0F]  cursor-pointer">
                           <a>
                             {" "}
                             <img src={helloIcon} alt="" /> My Account
                           </a>
                         </li>
-                        <Link to="/Order">
+                        <Link to="/orders">
                           <li className="text-white hover:bg-[#B67B0F] cursor-pointer">
                             <a>
                               {" "}
@@ -153,12 +155,15 @@ const Navbar = () => {
                             }
                           >
                             {" "}
-                            <img src={logOut} alt="" /> Log Out
+                            <img src={logOut} alt="" />{" "}
+                            <span onClick={logout}>Log Out</span>
                           </button>
                         </li>
                       </ul>
                     </div>
                   </div>
+                  
+                  
                 ) : (
                   <div className="cursor-pointer flex items-center w-[98px] h-[50px] justify-center  md:w-[124px] lg:h-[56px] py-[15px] px-[20px]  bg-[#F0F0F0]  rounded-full ">
                     <img src={loginLogo} alt="login-logo" />{" "}
