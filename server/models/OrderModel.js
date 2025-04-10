@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const orderSchema = new Schema(
   {
-    orderedItems: [
+    orderItems: [
       {
         title: {
           type: String,
